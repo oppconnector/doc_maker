@@ -12,7 +12,7 @@ def embed(text: str) -> list:
     url = "http://localhost:11434/api/embeddings"
     
     # Default model - adjust based on your needs or available models
-    model = "nomic-embed-text"  
+    model = "nomic-embed-text:lastest"   
 
     # Prepare the payload
     payload = {
