@@ -1,6 +1,9 @@
 import requests
 import pandas as pd
 from config import openweb_ui_api_key
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+import json
 
 def embed(text: str) -> list:
     """
@@ -42,7 +45,7 @@ def embed(text: str) -> list:
 # vector = embed("This is a test sentence for embedding.")
 # print(vector)
 
-def chunk_and_embed(text: str, chunk_size: int = 1000) -> pd.DataFrame:
+def chunk_embed_df(text: str, chunk_size: int = 1000) -> pd.DataFrame:
     """
     Chunk a long string of text, embed each chunk, and save into a pandas DataFrame.
 
@@ -72,20 +75,36 @@ def chunk_and_embed(text: str, chunk_size: int = 1000) -> pd.DataFrame:
 # df = chunk_and_embed(long_text)
 # print(df)
 
-def llm2(prompt):
+def ollama_llm(prompt):
     # Simple text generation
     model =  "phi3.5:latest"
     response = requests.post(
         'http://localhost:11434/api/generate',
         json={
             "model": model ,
-            "prompt": prompt
+            "prompt": prompt,
+            "stream": False
         }
     )
+        # Check if the request was successful
+    if response.status_code == 200:
+        # Assuming the response is JSON, parse it
+        #result = response.text # ['choices'][0]['message']['content']
+        # Parse the JSON string into a Python dictionary
+        # Directly parse the JSON from the response
+        parsed_response = response.json()
+        
+        # Extract the 'response' message
+        message = parsed_response.get('response', '')
+        #print(result)
+        return message
+    else:
+        print(f"Request failed with status code: {response.status_code}")
+        #print(response.text)
+        return None
 
-    return response
     
-def llm(prompt):
+def openweb_ui_llm(prompt):
     # Replace 'YOUR_API_KEY' with your actual API key
     api_key = openweb_ui_api_key
     model =  "phi3.5:latest"
@@ -123,3 +142,30 @@ def llm(prompt):
         print(f"Request failed with status code: {response.status_code}")
         #print(response.text)
         return None
+    
+
+
+def RAG_LLM(prompt, df):
+    # Step 1: Vectorize the prompt
+    prompt_embedding = embed(prompt)
+    
+    # Step 2: Perform RAG (Retrieval-Augmented Generation)
+    # Convert DataFrame embeddings to a numpy array for computation
+    embeddings_array = np.array(df['embedding'].tolist())
+    
+    # Compute similarity scores between prompt and each chunk's embedding
+    similarities = cosine_similarity([prompt_embedding], embeddings_array)[0]
+    
+    # Find the index of the most similar chunk
+    most_similar_idx = np.argmax(similarities)
+    
+    # Retrieve the most relevant chunk based on similarity
+    relevant_chunk = df.loc[most_similar_idx, 'chunk']
+    
+    # Step 3: Combine prompt with relevant information
+    augmented_prompt = f"{prompt}\n\nRelevant Information: {relevant_chunk}"
+    
+    # Step 4: Use the LLM to generate an answer based on the augmented prompt
+    answer = ollama_llm(augmented_prompt)
+    
+    return answer
