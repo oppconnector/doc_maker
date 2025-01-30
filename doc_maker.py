@@ -35,7 +35,7 @@ print("Loading pip python libraries")
 print("Loading custom python libraries")
 #custom libraries:
 from read_doc import read_doc
-from ai_embedding import embed
+from ai import embed
 
 print("All python libraries have been loaded")
 ################################################################################

@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+from config import openweb_ui_api_key
 
 def embed(text: str) -> list:
     """
@@ -69,3 +70,55 @@ def chunk_and_embed(text: str, chunk_size: int = 1000) -> pd.DataFrame:
 # long_text = "Your very long text here..."
 # df = chunk_and_embed(long_text)
 # print(df)
+
+def llm2(prompt):
+    # Simple text generation
+    model =  "phi3.5:latest"
+    response = requests.post(
+        'http://localhost:11434/api/generate',
+        json={
+            "model": model ,
+            "prompt": prompt
+        }
+    )
+
+    return response
+    
+def llm(prompt):
+    # Replace 'YOUR_API_KEY' with your actual API key
+    api_key = openweb_ui_api_key
+    model =  "phi3.5:latest"
+
+    # URL for the API endpoint
+    url = 'http://192.168.77.201:8080/api/chat/completions'
+
+    # Headers for the request
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+
+    # Body of the request
+    data = {
+        "model": model,
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    }
+
+    # Make the POST request
+    response = requests.post(url, headers=headers, json=data)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Assuming the response is JSON, parse it
+        result = response.json()['choices'][0]['message']['content']
+        #print(result)
+        return result
+    else:
+        print(f"Request failed with status code: {response.status_code}")
+        #print(response.text)
+        return None
