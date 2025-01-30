@@ -10,15 +10,15 @@ def embed(text: str) -> list:
     :return: A list representing the embedding vector
     """
     # URL for Ollama's embedding API, assuming it's running locally on default port
-    url = "http://localhost:11434/api/embeddings"
+    url = "http://localhost:11434/api/embed"
     
     # Default model - adjust based on your needs or available models
-    model = "nomic-embed-text:lastest"   
+    model = "nomic-embed-text"   
 
     # Prepare the payload
     payload = {
         "model": model,
-        "prompt": text
+        "input": text
     }
 
     try:
@@ -28,9 +28,10 @@ def embed(text: str) -> list:
 
         # Parse the JSON response
         result = response.json()
+        print("it worked")
         
         # Return the embeddings
-        return result.get("embedding", [])
+        return result.get("embeddings", "None")
 
     except requests.RequestException as e:
         # Handle any network or API errors

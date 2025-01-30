@@ -17,3 +17,5 @@ soupsieve==2.6
 striprtf==0.0.28
 typing_extensions==4.12.2
 XlsxWriter==3.2.2
+pandas
+requests
