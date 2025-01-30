@@ -129,10 +129,11 @@ def main():
     for prompt in short_prompts:
         question = prompt.replace("{!","").replace("!}","")
         full_prompt_text = f"Provide a short answer the the following question: {question}"
-        print(f"{full_prompt_text}")
+        print(f"Short full_prompt_text: {full_prompt_text}")
 
         #9: answer each prompt with RAG
         rag_llm_answer = RAG_LLM(prompt, embeded_df)
+        print(f"Short rag_llm_answer: {rag_llm_answer}")
 
         #10: replace prompt with HTML RAG answer
         doc = replace_text_in_doc(doc, prompt, rag_llm_answer)
@@ -143,10 +144,11 @@ def main():
     for prompt in big_prompts:
         prompt_text = prompt.replace("{$","").replace("$}","")
         full_prompt_text = f"Our Company KVG is writing a Government contract proposal. Create the following section of the proposal: {prompt_text}"
-        print(f"{full_prompt_text}")
+        print(f"Long full_prompt_text: {full_prompt_text}")
         
         #9: answer each prompt with RAG
         rag_llm_answer = RAG_LLM(prompt, embeded_df)
+        print(f"Long rag_llm_answer: {rag_llm_answer}")
 
         #10: replace prompt with HTML RAG answer
         doc = replace_text_in_doc(doc, prompt, rag_llm_answer)
